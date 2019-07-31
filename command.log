@@ -4775,3 +4775,5 @@ write -hierarchy -format sverilog -output /u/nnikolov/ECE581_Project3/ECE581-Pro
 write -hierarchy -format verilog -output /u/nnikolov/ECE581_Project3/ECE581-Project3/P3P2_FSM_NORM_syn.v
 read_file -format verilog {/u/nnikolov/ECE581_Project3/ECE581-Project3/P3P2_FSM_NORM_syn.v}
 compile
+compile
+write -hierarchy -format verilog -output /u/nnikolov/ECE581_Project3/ECE581-Project3/P3P2_FSM_NORM_syn.v
