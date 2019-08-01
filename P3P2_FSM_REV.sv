@@ -41,11 +41,11 @@ module VendingMoore (
   // states
   typedef enum logic [5:0] { // explicit enum definition
     EMPTY = 		6'b00001 << E_BIT, //5'b00001
-   	QUARTER = 		6'b00001 << Q_BIT, //5'b00010
+    QUARTER = 		6'b00001 << Q_BIT, //5'b00010
     FIFTY = 		6'b00001 << F_BIT,
     SEVENTYFIVE = 	6'b00001 << S_BIT,
     DOLLAR =		6'b00001 << D_BIT,
-  	DISPENSE =		6'b00001 << DIS_BIT } states_t;
+  DISPENSE =		6'b00001 << DIS_BIT } states_t;
   
   states_t current_state, next_state;
   
