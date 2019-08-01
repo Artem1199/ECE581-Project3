@@ -41,7 +41,7 @@ module vending_test;
    initial begin
      
     $dumpvars;
-	$dumpfile("file.vcd");
+    $dumpfile("file.vcd");
      coin = 0;
      
     reset = 1;
@@ -70,7 +70,7 @@ module vending_test;
   
      for ( k = 18; k >= 0; k--) begin
       
-      #10 coin = data[k];
+      #7 coin = data[k];
       
    end 
     
