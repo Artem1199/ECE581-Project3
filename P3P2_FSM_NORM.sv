@@ -32,12 +32,13 @@ module VendingMoore (
   parameter [2:0] Dollar 		= 5'b100;
   
   // states
-  typedef enum logic [4:0] { // explicit enum definition
-    EMPTY = 		5'b00001,
-   	QUARTER = 		5'b00010,
-    FIFTY = 		5'b00100,
-    SEVENTYFIVE = 	5'b01000,
-    DOLLAR =		5'b10000} states_t;
+  typedef enum logic [5:0] { // explicit enum definition
+    EMPTY = 		6'b000001,
+   	QUARTER = 		6'b000010,
+    FIFTY = 		6'b000100,
+    SEVENTYFIVE = 	6'b001000,
+    DOLLAR =		6'b010000,
+  	DISPENSE =		6'b100000} states_t;
   
   states_t current_state, next_state;
   
@@ -48,10 +49,8 @@ module VendingMoore (
 	else 	   current_state <= next_state; 
   
   always_comb begin: set_next_state
-   	next_state = EMPTY; // default for each branch below
-    dispense = 0;
+   	next_state = EMPTY; // default for each branch below  
     error = 0;
-    
     unique case (current_state)
       
     EMPTY: case (coin) // empty state
@@ -59,53 +58,63 @@ module VendingMoore (
        Quarter		: next_state = QUARTER; // one quarter
        Fifty		: next_state = FIFTY;// 50 cents
        Dollar		: next_state = DOLLAR;// 1 dollar
-      
        default		: next_state = EMPTY;// empty
       endcase
      
-    // A quarter paid
+    // A quarter paid***********************************
     QUARTER: case (coin) // for a quarter
       Quarter  		: next_state = FIFTY;
       Fifty			: next_state = SEVENTYFIVE;
-      Dollar		: begin next_state = EMPTY; dispense = 1; end
+      Dollar		: next_state = DISPENSE;
       default 		: next_state = QUARTER;
     endcase
       
-    // Fifty cents  paid *******
+    // Fifty cents  paid *******************************
     FIFTY: case (coin) // for fifty cents
       Quarter		: next_state = SEVENTYFIVE; // 50 + 25
       Fifty			: next_state = DOLLAR;// 50 + 50 
-      Dollar		: begin next_state = EMPTY; error = 1;  end
+      Dollar		: begin next_state = FIFTY; error = 1; end
       default		: next_state = FIFTY;// else stay at 50
     endcase
-    // Seventy five cents paid
+
+    // Seventy five cents paid**************************
       SEVENTYFIVE: case (coin)
         Quarter		: next_state = DOLLAR; // 75 + 25
-        Fifty		:begin next_state = EMPTY; dispense = 1; end // 75 + 50
-        Dollar		:begin next_state = EMPTY; error = 1; end
+        Fifty		: next_state = DISPENSE; // 75 + 50
+        Dollar		: begin next_state = SEVENTYFIVE; error = 1; end
         default		: next_state = SEVENTYFIVE;
       endcase
-    // One Dollar
+
+    // One Dollar****************************************
     DOLLAR: case (coin) // for 1 dollar
-      Quarter		:begin next_state = EMPTY; dispense = 1'b1; end// 1.00 + 25  = dispense
-      Fifty			:begin next_state = EMPTY; error = 1; end
-      Dollar		:begin next_state = EMPTY; error = 1; end
-     default		: next_state = DOLLAR;// for other values stay 1
+      Quarter		:next_state = DISPENSE; // 1.00 + 25  = dispense
+      Fifty		:begin next_state = DOLLAR; error = 1; end
+      Dollar		:begin next_state = DOLLAR; error = 1; end
+     default		:next_state = DOLLAR;// for other values stay 1
     endcase
-      	
+    
+//********************************************************  	
+      DISPENSE: case (coin)
+        Zero		: next_state = EMPTY;
+        Quarter		: next_state = QUARTER; // while dispensing adding a quarter
+        Fifty		: next_state = FIFTY; // while dispensing adding 50
+        Dollar		: next_state = DOLLAR; // while dispensing adding a dollar
+      default		: next_state = DISPENSE; // if no coin go to empty
+      endcase
     endcase      
   end: set_next_state
   
   always_comb begin: set_outputs
-    {empty, quarter,fifty,seventyfive,dollar} = 0;
+    {empty, quarter,fifty,seventyfive,dollar,dispense} = 0;
     
     unique case (current_state)
     
 	EMPTY		:	empty 		= 1'b1;
 	QUARTER		: 	quarter 	= 1'b1;
     FIFTY  		:	fifty		= 1'b1;
-    SEVENTYFIVE	:	seventyfive = 1'b1;
+    SEVENTYFIVE		:	seventyfive = 1'b1;
     DOLLAR		:	dollar		= 1'b1;
+    DISPENSE		:	dispense	= 1'b1;
       
     endcase
     
