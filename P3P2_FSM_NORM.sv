@@ -34,11 +34,11 @@ module VendingMoore (
   // states
   typedef enum logic [5:0] { // explicit enum definition
     EMPTY = 		6'b000001,
-   	QUARTER = 		6'b000010,
+    QUARTER = 		6'b000010,
     FIFTY = 		6'b000100,
     SEVENTYFIVE = 	6'b001000,
     DOLLAR =		6'b010000,
-  	DISPENSE =		6'b100000} states_t;
+    DISPENSE =		6'b100000} states_t;
   
   states_t current_state, next_state;
   
@@ -54,7 +54,7 @@ module VendingMoore (
     unique case (current_state)
       
     EMPTY: case (coin) // empty state
-       Zero			: next_state = EMPTY; // no money
+       Zero		: next_state = EMPTY; // no money
        Quarter		: next_state = QUARTER; // one quarter
        Fifty		: next_state = FIFTY;// 50 cents
        Dollar		: next_state = DOLLAR;// 1 dollar
@@ -64,7 +64,7 @@ module VendingMoore (
     // A quarter paid***********************************
     QUARTER: case (coin) // for a quarter
       Quarter  		: next_state = FIFTY;
-      Fifty			: next_state = SEVENTYFIVE;
+      Fifty		: next_state = SEVENTYFIVE;
       Dollar		: next_state = DISPENSE;
       default 		: next_state = QUARTER;
     endcase
@@ -72,7 +72,7 @@ module VendingMoore (
     // Fifty cents  paid *******************************
     FIFTY: case (coin) // for fifty cents
       Quarter		: next_state = SEVENTYFIVE; // 50 + 25
-      Fifty			: next_state = DOLLAR;// 50 + 50 
+      Fifty		: next_state = DOLLAR;// 50 + 50 
       Dollar		: begin next_state = FIFTY; error = 1; end
       default		: next_state = FIFTY;// else stay at 50
     endcase
@@ -109,10 +109,10 @@ module VendingMoore (
     
     unique case (current_state)
     
-	EMPTY		:	empty 		= 1'b1;
-	QUARTER		: 	quarter 	= 1'b1;
+   EMPTY		:	empty 		= 1'b1;
+   QUARTER		: 	quarter 	= 1'b1;
     FIFTY  		:	fifty		= 1'b1;
-    SEVENTYFIVE		:	seventyfive = 1'b1;
+    SEVENTYFIVE		:	seventyfive 	= 1'b1;
     DOLLAR		:	dollar		= 1'b1;
     DISPENSE		:	dispense	= 1'b1;
       
