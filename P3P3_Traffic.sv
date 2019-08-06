@@ -1,5 +1,6 @@
 // Artem Kulakevich - P2P2
 `include "P1P6_counter.sv"
+`timescale 1ns/10ps
 
 typedef enum logic [2:0]{OFF,                   //power off
               RED,                      //red state
@@ -16,8 +17,6 @@ module trafficlight (
   input reset_n,                        //synchronous reset
   input clk);                           //master clock
 
-  timeunit 1ns;
-  timeprecision 100ps;
   parameter FAIL = 1'b0;
 
         logic [1:0] ns_green_timer;
@@ -26,38 +25,47 @@ module trafficlight (
         logic ew_reset;
 
 //Reusing counter from Project 1, Problem 6.  Converted to 3 bit counter.
-  P1P6_counter #(.n(2)) ns_counter(.UP(1'b1), .CLK(clk), .RESET(ns_reset), .out(ns_green_timer[1:0])); //active high reset
-  P1P6_counter #(.n(2)) ew_counter(.UP(1'b1), .CLK(clk), .RESET(ew_reset), .out(ew_green_timer[1:0])); //active high reset (ew timer)
+  P1P6_counter #(.n(2)) ns_counter(.CLK(clk), .RESET(ns_reset), .out(ns_green_timer[1:0])); //active high reset
+  P1P6_counter #(.n(2)) ew_counter(.CLK(clk), .RESET(ew_reset), .out(ew_green_timer[1:0])); //active high reset (ew timer)
 
 
         lights_t ns_next; //next state for ns lights
         lights_t ew_next; //next state for ew lights
 
   always_ff @(posedge clk or negedge reset_n) begin //Sequential Logic
-        ns_reset <= 0;
-        ew_reset <= 0;
 
-    if (~reset_n) begin
+    if (~reset_n) begin 
         ns_light <= GREEN;
     	ew_light <= RED;
+	ns_reset <= 1;
+	ew_reset <= 1;
     		end
-        else if ((ns_next == YELLOW)||(~reset_n)||(ns_next == PRE_GREEN)||emgcy_sensor) //Resets NS light
+
+	else if (emgcy_sensor)
+	begin
+        ns_reset <= 1;
+	ew_reset <= 1;
+	ns_light <= ns_next;
+	ew_light <= ew_next;
+	end
+
+        else if ((ns_next == YELLOW)||(ns_next == PRE_GREEN)) //Resets NS light
 	begin
         ns_reset <= 1;
 	ns_light <= ns_next;
 	ew_light <= ew_next;
+		if ((ew_next == YELLOW)||(ew_next == PRE_GREEN))
+		ew_reset <= 1;
+		else 
+		ew_reset <= 0;
 	end
-        else if ((ew_next == YELLOW)||(~reset_n)||(ew_next == PRE_GREEN)||emgcy_sensor) //Resets EW ligh
 
-        begin
-        ew_reset <= 1;
-	ns_light <= ns_next;
-	ew_light <= ew_next;
-	end
 
 	else begin
         ns_light <= ns_next;
         ew_light <= ew_next;
+        ns_reset <= 0;
+        ew_reset <= 0;
 
     		end // if reset
 
@@ -66,7 +74,7 @@ module trafficlight (
   always_comb begin //state machine for NS lights
    unique case(ns_light)
         //if emergency OR if timer = 3 + ew_sensor
-        GREEN: if((emgcy_sensor)||(ew_sensor&&(ns_green_timer == 2'h3))) ns_next = YELLOW;
+        GREEN: if((emgcy_sensor)||(ew_sensor&&(ns_green_timer == 3))) ns_next = YELLOW;
         //stay in green
                 else ns_next = GREEN;
 
@@ -86,7 +94,7 @@ module trafficlight (
 
         always_comb begin //logic for EW light
                 unique case(ew_light)
-        GREEN: if((emgcy_sensor)||(ew_green_timer == 2'h3)) ew_next = YELLOW;
+        GREEN: if((emgcy_sensor)||(ew_green_timer == 3)) ew_next = YELLOW;
                 else ew_next = GREEN;
         YELLOW: ew_next = RED;
         PRE_GREEN:if(emgcy_sensor) ew_next = YELLOW;
@@ -97,8 +105,6 @@ module trafficlight (
 
         endcase
         end //always_comb
-
-
 
 
 endmodule

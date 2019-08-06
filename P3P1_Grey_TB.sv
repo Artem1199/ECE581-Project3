@@ -8,7 +8,7 @@ module P1P4_BTG_testbench;    // No need for Ports
   logic [3:0] GS;
   logic GCout;
   
-  P3P1_Grey_Adder GreyAdder(GA[3:0], GB[3:0], GS[3:0], GCout);
+  P3P1_Grey_Adder_NL GreyAdder(GA[3:0], GB[3:0], GS[3:0], GCout);
  
   initial begin   	// initial block
 	$dumpfile("Test_BG.vcd"); //required for EDA playground
