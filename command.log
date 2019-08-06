@@ -1,6 +1,6 @@
 #@ # 
 #@ # Running dc_shell Version G-2012.06 for linux -- May 30, 2012
-#@ # Date:   Tue Jul 30 17:35:29 2019
+#@ # Date:   Thu Aug  1 11:56:41 2019
 #@ # Run by: nnikolov@walle.ece.pdx.edu
 #@ 
 
@@ -4757,23 +4757,21 @@ source /pkgs/synopsys/G-2012.06/admin/setup/.synopsys_dc.setup
 
 gui_start
 read_file -format sverilog {/u/nnikolov/ECE581_Project3/ECE581-Project3/P3P2_FSM_NORM.sv}
+compile
+gui_zoom -window [gui_get_current_window -view] -full
 read_file -format sverilog {/u/nnikolov/ECE581_Project3/ECE581-Project3/P3P2_FSM_NORM.sv}
 create_clock -name "clk" -period 10 -waveform { 5 10  }
 set_dont_touch_network  [ find clock clk ]
 set_fix_hold  [ find clock clk]
-set_wire_load_model -name 10x10 -library lsi_10k
+create_clock -name "clk" -period 10 -waveform { 5 10  }
+set_dont_touch_network  [ find clock clk ]
+set_fix_hold  [ find clock clk]
+remove_wire_load_model
+compiler
 compile
-report_t
 gui_zoom -window [gui_get_current_window -view] -full
-compile
-gui_zoom -window [gui_get_current_window -view] -full
-compile
-gui_zoom -window [gui_get_current_window -view] -full
-gui_zoom -window [gui_get_current_window -view] -full
-write -hierarchy -format sverilog -output /u/nnikolov/ECE581_Project3/ECE581-Project3/P3P2_FSM_NORM_syn.sv.sverilog
-write -hierarchy -format sverilog -output /u/nnikolov/ECE581_Project3/ECE581-Project3/P3P2_FSM_NORM_syn.sv.sverilog
-write -hierarchy -format verilog -output /u/nnikolov/ECE581_Project3/ECE581-Project3/P3P2_FSM_NORM_syn.v
-read_file -format verilog {/u/nnikolov/ECE581_Project3/ECE581-Project3/P3P2_FSM_NORM_syn.v}
-compile
-compile
+report_area
+report_power
+report_gate
+report_reference
 write -hierarchy -format verilog -output /u/nnikolov/ECE581_Project3/ECE581-Project3/P3P2_FSM_NORM_syn.v
